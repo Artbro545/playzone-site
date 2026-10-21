@@ -1,0 +1,1943 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Playzone — IP: playingzone.aternos.me</title>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0405;
+      --bg-soft: #14080a;
+      --card: #1a0c0e;
+      --border: #3d1418;
+      --border-glow: #7f1d1d;
+      --accent: #ff3c1f;
+      --accent-hover: #ff5a3d;
+      --accent-dark: #b91c1c;
+      --accent-glow: rgba(255, 60, 31, 0.5);
+      --text: #f5e6d3;
+      --muted: #b08878;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --blood: #8b0000;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image:
+        radial-gradient(ellipse at 20% 0%, rgba(139, 0, 0, 0.25) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 100%, rgba(255, 60, 31, 0.15) 0%, transparent 50%),
+        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.3) 2px, rgba(0,0,0,0.3) 4px);
+    }
+
+    .container { max-width: 1280px; margin: 0 auto; padding: 0 1.5rem; }
+
+    .menu-toggle {
+      position: fixed;
+      top: 1.2rem; left: 1.2rem;
+      z-index: 1100;
+      width: 48px; height: 48px;
+      background: linear-gradient(135deg, var(--accent), var(--blood));
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+      color: #0a0405;
+      font-size: 1.3rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 20px var(--accent-glow);
+      transition: all 0.2s;
+    }
+    .menu-toggle:hover { transform: scale(1.05); box-shadow: 0 0 30px var(--accent); }
+
+    .side-menu {
+      position: fixed; top: 0; left: 0;
+      width: 620px; max-width: 95vw; height: 100vh;
+      background: linear-gradient(180deg, var(--bg-soft) 0%, var(--bg) 100%);
+      border-right: 2px solid var(--accent);
+      box-shadow: 4px 0 40px rgba(255, 60, 31, 0.3);
+      z-index: 1200;
+      transform: translateX(-100%);
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .side-menu.open { transform: translateX(0); }
+
+    .side-menu-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .side-menu-title {
+      font-family: 'Creepster', cursive; font-size: 1.5rem; letter-spacing: 2px;
+      color: var(--accent); text-shadow: 0 0 15px var(--accent-glow);
+    }
+    .side-menu-close {
+      background: none; border: 1px solid var(--border); color: var(--muted);
+      width: 36px; height: 36px; border-radius: 4px; font-size: 1.4rem;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; line-height: 1;
+    }
+    .side-menu-close:hover { background: var(--accent); color: #0a0405; border-color: var(--accent); }
+
+    .side-menu-body { flex: 1; display: flex; overflow: hidden; }
+
+    .side-menu-tabs {
+      width: 180px; flex-shrink: 0;
+      display: flex; flex-direction: column;
+      border-right: 1px solid var(--border);
+      background: rgba(0, 0, 0, 0.25);
+      overflow-y: auto;
+    }
+    .side-menu-tab {
+      padding: 1.2rem 1rem; background: none; border: none;
+      border-left: 3px solid transparent;
+      color: var(--muted); font-family: inherit; font-weight: 700;
+      font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;
+      cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; gap: 0.6rem;
+      text-align: left; white-space: nowrap;
+    }
+    .side-menu-tab i { font-size: 1rem; width: 20px; text-align: center; flex-shrink: 0; }
+    .side-menu-tab:hover { color: var(--text); background: rgba(255, 60, 31, 0.05); }
+    .side-menu-tab.active {
+      color: var(--accent); border-left-color: var(--accent);
+      background: rgba(255, 60, 31, 0.1); text-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    .side-menu-content { flex: 1; overflow-y: auto; padding: 1.5rem; min-width: 0; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; animation: panelIn 0.25s ease; }
+    @keyframes panelIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+
+    .info-block {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 6px; padding: 1.2rem; margin-bottom: 1rem;
+    }
+    .info-block h4 {
+      font-family: 'Creepster', cursive; font-size: 1.2rem; letter-spacing: 1px;
+      color: var(--accent); margin-bottom: 0.6rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .info-block p { color: var(--muted); font-size: 0.88rem; line-height: 1.6; }
+    .info-block ul { list-style: none; margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.4rem; }
+    .info-block ul li { color: var(--muted); font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem; }
+    .info-block ul li i { color: var(--accent); font-size: 0.7rem; }
+
+    .shop-go-btn {
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+      background: linear-gradient(135deg, var(--accent), var(--blood));
+      border: 1px solid var(--accent); border-radius: 4px;
+      padding: 0.9rem; color: #0a0405;
+      font-weight: 800; font-size: 0.85rem;
+      cursor: pointer; font-family: inherit;
+      text-transform: uppercase; letter-spacing: 1.5px;
+      text-decoration: none; transition: all 0.2s;
+      box-shadow: 0 0 15px rgba(255, 60, 31, 0.3); width: 100%;
+    }
+    .shop-go-btn:hover {
+      background: linear-gradient(135deg, var(--accent-hover), var(--accent));
+      transform: scale(1.02); box-shadow: 0 0 25px var(--accent);
+    }
+
+    .screenshot-categories { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+    .screenshot-cat-btn {
+      flex: 1; min-width: 120px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 4px; padding: 0.7rem 0.6rem;
+      color: var(--muted); font-family: inherit; font-weight: 700;
+      font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px;
+      cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+      text-align: center;
+    }
+    .screenshot-cat-btn i { font-size: 0.9rem; flex-shrink: 0; }
+    .screenshot-cat-btn:hover { color: var(--text); border-color: var(--accent); }
+    .screenshot-cat-btn.active {
+      background: linear-gradient(135deg, var(--accent), var(--blood));
+      border-color: var(--accent); color: #0a0405;
+      box-shadow: 0 0 15px rgba(255, 60, 31, 0.3);
+    }
+
+    .screenshot-cat-panel { display: none; }
+    .screenshot-cat-panel.active { display: block; }
+
+    .screenshot-cat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.8rem; gap: 0.5rem; }
+    .screenshot-cat-title {
+      font-family: 'Creepster', cursive; font-size: 1.1rem; letter-spacing: 1px;
+      color: var(--accent); text-shadow: 0 0 10px var(--accent-glow);
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .screenshot-count {
+      font-size: 0.7rem; color: var(--muted); font-weight: 700;
+      background: var(--card); border: 1px solid var(--border);
+      padding: 0.2rem 0.5rem; border-radius: 10px;
+    }
+
+    .screenshots-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
+    .screenshot-item {
+      position: relative; aspect-ratio: 16 / 9;
+      border: 1px solid var(--border); border-radius: 4px;
+      overflow: hidden; cursor: pointer; transition: all 0.2s; background: var(--card);
+    }
+    .screenshot-item:hover { border-color: var(--accent); box-shadow: 0 0 20px rgba(255, 60, 31, 0.3); transform: scale(1.03); }
+    .screenshot-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .screenshot-placeholder {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 0.4rem; color: var(--muted); font-size: 0.7rem; text-align: center; padding: 0.5rem;
+      background: radial-gradient(circle at 50% 50%, rgba(255, 60, 31, 0.1) 0%, transparent 70%), var(--card);
+    }
+    .screenshot-placeholder i { font-size: 1.5rem; color: var(--accent); opacity: 0.7; }
+    .screenshot-empty {
+      grid-column: 1 / -1; text-align: center; padding: 2rem 1rem;
+      color: var(--muted); font-size: 0.85rem;
+      border: 1px dashed var(--border); border-radius: 4px;
+    }
+    .screenshot-empty i { font-size: 2rem; color: var(--border); display: block; margin-bottom: 0.5rem; }
+
+    .screenshot-remove {
+      position: absolute; top: 0.4rem; right: 0.4rem;
+      width: 26px; height: 26px; background: rgba(239, 68, 68, 0.9);
+      border: 1px solid #fff; border-radius: 50%; color: #fff;
+      font-size: 0.85rem; font-weight: 800; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 2; line-height: 1; box-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
+      transition: all 0.2s;
+    }
+    .screenshot-remove:hover { background: #ef4444; transform: scale(1.15); }
+
+    .upload-zone {
+      background: var(--card); border: 2px dashed var(--accent);
+      border-radius: 6px; padding: 1rem; text-align: center;
+      margin-bottom: 1rem; transition: all 0.2s;
+    }
+    .upload-zone.dragover {
+      background: rgba(255, 60, 31, 0.1); border-color: var(--accent-hover);
+      box-shadow: 0 0 20px rgba(255, 60, 31, 0.4);
+    }
+    .upload-zone i.upload-icon { font-size: 1.6rem; color: var(--accent); margin-bottom: 0.4rem; display: block; }
+    .upload-zone p { color: var(--muted); font-size: 0.8rem; margin-bottom: 0.6rem; }
+    .upload-zone .upload-btn {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      background: linear-gradient(135deg, var(--accent), var(--blood));
+      border: 1px solid var(--accent); border-radius: 4px;
+      padding: 0.6rem 1rem; color: #0a0405; font-weight: 800;
+      font-size: 0.75rem; cursor: pointer; font-family: inherit;
+      text-transform: uppercase; letter-spacing: 1px; transition: all 0.2s;
+    }
+    .upload-zone .upload-btn:hover {
+      background: linear-gradient(135deg, var(--accent-hover), var(--accent));
+      transform: scale(1.03); box-shadow: 0 0 20px var(--accent);
+    }
+    .upload-zone .upload-btn input[type="file"] { display: none; }
+    .upload-zone .upload-hint { font-size: 0.68rem; color: var(--muted); margin-top: 0.5rem; opacity: 0.8; }
+
+    .overlay {
+      position: fixed; inset: 0; background: rgba(10, 4, 5, 0.7);
+      backdrop-filter: blur(4px); z-index: 1150;
+      opacity: 0; visibility: hidden; transition: all 0.3s;
+    }
+    .overlay.active { opacity: 1; visibility: visible; }
+
+    .lightbox {
+      position: fixed; inset: 0; background: rgba(10, 4, 5, 0.95);
+      z-index: 1300; display: none; align-items: center; justify-content: center; padding: 2rem;
+    }
+    .lightbox.active { display: flex; }
+    .lightbox-content {
+      max-width: 900px; width: 100%; background: var(--card);
+      border: 2px solid var(--accent); border-radius: 8px; padding: 1rem;
+      box-shadow: 0 0 60px rgba(255, 60, 31, 0.4); position: relative;
+    }
+    .lightbox-image {
+      width: 100%; aspect-ratio: 16 / 9; background: var(--bg-soft);
+      border-radius: 4px; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 1rem; color: var(--muted);
+      overflow: hidden;
+    }
+    .lightbox-image img { width: 100%; height: 100%; object-fit: contain; }
+    .lightbox-image i { font-size: 4rem; color: var(--accent); opacity: 0.7; }
+    .lightbox-close {
+      position: absolute; top: -14px; right: -14px;
+      width: 36px; height: 36px; background: var(--accent);
+      border: 2px solid var(--bg); border-radius: 50%; color: #0a0405;
+      font-size: 1.2rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; font-weight: 800;
+    }
+    .lightbox-close:hover { background: var(--accent-hover); }
+
+    .site-header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10, 4, 5, 0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 2px solid var(--border-glow);
+      box-shadow: 0 4px 30px rgba(139, 0, 0, 0.4);
+    }
+    .header-inner { display: flex; align-items: center; justify-content: space-between; padding: 1rem 0; gap: 1.5rem; }
+    .logo {
+      display: flex; align-items: center; gap: 0.6rem;
+      font-family: 'Creepster', cursive; font-size: 2rem; letter-spacing: 2px;
+      text-decoration: none; color: var(--text);
+      text-shadow: 0 0 10px var(--accent-glow), 0 0 20px var(--accent-glow);
+      margin-left: 3.5rem;
+    }
+    .logo-icon {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, var(--accent), var(--blood));
+      border-radius: 4px; display: flex; align-items: center; justify-content: center;
+      color: #0a0405; font-size: 1.4rem;
+      box-shadow: 0 0 25px var(--accent-glow);
+      transform: rotate(-3deg); border: 1px solid var(--accent);
+    }
+    .logo-text span { color: var(--accent); }
+
+    .main-nav { display: flex; align-items: center; gap: 1.5rem; }
+    .main-nav a {
+      color: var(--muted); text-decoration: none; font-weight: 600;
+      font-size: 0.9rem; transition: all 0.2s;
+      display: flex; align-items: center; gap: 0.4rem;
+      text-transform: uppercase; letter-spacing: 1px;
+      padding: 0.4rem 0.7rem; border-radius: 4px; border: 1px solid transparent;
+      cursor: pointer;
+    }
+    .main-nav a:hover { color: var(--accent); text-shadow: 0 0 10px var(--accent-glow); }
+    .main-nav a.active {
+      color: var(--accent); border-color: var(--accent);
+      background: rgba(255, 60, 31, 0.08); box-shadow: 0 0 10px rgba(255, 60, 31, 0.2);
+    }
+
+    .header-actions { display: flex; align-items: center; gap: 0.8rem; }
+
+    .user-btn {
+      display: flex; align-items: center; gap: 0.5rem;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 4px; padding: 0.65rem 1rem;
+      color: var(--text); cursor: pointer; font-weight: 700;
+      font-size: 0.85rem; transition: all 0.2s; font-family: inherit;
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+    .user-btn:hover { border-color: var(--accent); box-shadow: 0 0 15px rgba(255,60,31,0.2); }
+    .user-btn i { color: var(--accent); }
+    .user-btn .user-name { max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .user-btn.logged-in { border-color: var(--accent); background: rgba(255,60,31,0.08); }
+
+    .cart-btn {
+      display: flex; align-items: center; gap: 0.6rem;
+      background: linear-gradient(135deg, var(--accent), var(--blood));
+      border: 1px solid var(--accent); border-radius: 4px;
+      padding: 0.7rem 1.4rem; color: #0a0405;
+      font-weight: 800; font-size: 0.95rem; cursor: pointer;
+      transition: all 0.2s; font-family: inherit;
+      text-transform: uppercase; letter-spacing: 1px;
+      box-shadow: 0 0 20px rgba(255, 60, 31, 0.4);
+      position: relative; overflow: hidden;
+    }
+    .cart-btn::before {
+      content: ''; position: absolute; top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+      transform: rotate(45deg); animation: shimmer 3s infinite;
+    }
+    @keyframes shimmer { 0% { transform: translateX(-100%) rotate(45deg); } 100% { transform: translateX(100%) rotate(45deg); } }
+    .cart-btn:hover { transform: scale(1.05) rotate(-1deg); box-shadow: 0 0 35px var(--accent); }
+    .cart-count {
+      background: #0a0405; color: var(--accent); border-radius: 20px;
+      min-width: 22px; height: 22px; display: flex; align-items: center;
+      justify-content: center; font-size: 0.8rem; padding: 0 0.4rem;
+      position: relative; z-index: 1;
+    }
+
+    .page { display: none; min-height: calc(100vh - 80px); padding: 3rem 0 4rem; }
+    .page.active { display: block; animation: pageIn 0.4s ease; }
+    @keyframes pageIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+    .ip-hero { position: relative; padding: 4rem 0 3rem; text-align: center; overflow: hidden; }
+    .ip-hero::before {
+      content: ''; position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(255, 60, 31, 0.25) 0%, transparent 60%),
+        radial-gradient(ellipse at 50% 100%, rgba(139, 0, 0, 0.35) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .ip-hero .container { position: relative; z-index: 1; }
+
+    .ip-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(255, 60, 31, 0.1); border: 1px solid var(--accent);
+      color: var(--accent); padding: 0.5rem 1.2rem; border-radius: 4px;
+      font-size: 0.8rem; font-weight: 700; margin-bottom: 1.5rem;
+      text-transform: uppercase; letter-spacing: 2px;
+      box-shadow: 0 0 20px rgba(255, 60, 31, 0.3);
+    }
+    .ip-badge i { animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.3) rotate(10deg); } }
+
+    .ip-title {
+      font-family: 'Creepster', cursive;
+      font-size: clamp(2.5rem, 7vw, 5rem);
+      letter-spacing: 3px; line-height: 1.1; margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, var(--text) 20%, var(--accent) 60%, var(--blood) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      text-shadow: 0 0 50px rgba(255, 60, 31, 0.5);
+    }
+    .ip-subtitle {
+      color: var(--muted); font-size: clamp(1rem, 2vw, 1.15rem);
+      margin-bottom: 2rem; letter-spacing: 1px;
+    }
+
+    .ip-card {
+      max-width: 640px; margin: 0 auto 2rem;
+      background: linear-gradient(180deg, var(--card) 0%, var(--bg-soft) 100%);
+      border: 2px solid var(--accent); border-radius: 8px;
+      padding: 1.8rem 1.5rem; position: relative;
+      box-shadow: 0 0 40px rgba(255, 60, 31, 0.35), 0 20px 40px -10px rgba(0,0,0,0.8);
+    }
+    .ip-card::before {
+      content: 'IP'; position: absolute; top: -12px; left: 1.5rem;
+      background: var(--accent); color: #0a0405;
+      font-family: 'Creepster', cursive; font-size: 0.9rem; letter-spacing: 2px;
+      padding: 0.2rem 0.8rem; border-radius: 3px;
+      box-shadow: 0 0 15px var(--accent-glow);
+    }
+    .ip-label {
+      color: var(--muted); font-size: 0.75rem; text-transform: uppercase;
+      letter-spacing: 2px; margin-bottom: 0.4rem; font-weight: 700;
+    }
+    .ip-value {
+      font-family: 'Creepster', cursive;
+      font-size: clamp(1.6rem, 4vw, 2.6rem);
+      color: var(--accent); letter-spacing: 2px;
+      text-shadow: 0 0 25px var(--accent-glow);
+      margin-bottom: 1rem;
+      word-break: break-all;
+      line-height: 1.2;
+    }
+    .ip-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; justify-content: center; }
+    .ip-btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: linear-gradient(135deg, var(--accent), var(--blood));
+      border: 1px solid var(--accent); border-radius: 4px;
+      padding: 0.85rem 1.4rem; color: #0a0405;
+      font-weight: 800; font-size: 0.85rem; cursor: pointer;
+      transition: all 0.2s; font-family: inherit;
+      text-transform: uppercase; letter-spacing: 1px;
+      box-shadow: 0 0 15px rgba(255, 60, 31, 0.3);
+    }
+    .ip-btn:hover {
+      background: linear-gradient(135deg, var(--accent-hover), var(--accent));
+      transform: scale(1.03); box-shadow: 0 0 25px var(--accent);
+    }
+    .ip-btn.copied {
+      background: linear-gradient(135deg, var(--success), #16a34a) !important;
+      border-color: var(--success) !important;
+    }
+    .ip-hint {
+      color: var(--muted); font-size: 0.78rem; margin-top: 1rem;
+      display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+    }
+    .ip-hint i { color: var(--accent); }
+
+    .quick-links {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem; max-width: 900px; margin: 3rem auto 0;
+    }
+    .quick-link {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 6px; padding: 1.5rem 1rem; text-align: center;
+      cursor: pointer; transition: all 0.25s; text-decoration: none;
+      color: var(--text); display: flex; flex-direction: column; align-items: center; gap: 0.6rem;
+    }
+    .quick-link:hover {
+      border-color: var(--accent); transform: translateY(-4px);
+      box-shadow: 0 0 25px rgba(255, 60, 31, 0.25);
+    }
+    .quick-link-icon {
+      width: 56px; height: 56px; border-radius: 6px;
+      background: linear-gradient(135deg, rgba(255, 60, 31, 0.15), rgba(139, 0, 0, 0.3));
+      border: 1px solid var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--accent); font-size: 1.4rem;
+      box-shadow: 0 0 15px rgba(255, 60, 31, 0.2);
+    }
+    .quick-link-title {
+      font-family: 'Creepster', cursive;
+      font-size: 1.1rem; letter-spacing: 1px;
+      color: var(--accent);
+    }
+    .quick-link-desc {
+      color: var(--muted); font-size: 0.78rem; line-height: 1.4;
+    }
+
+    .section-header { text-align: center; margin-bottom: 3rem; }
+    .section-title {
+      font-family: 'Creepster', cursive;
+      font-size: clamp(2rem, 4vw, 3rem);
+      letter-spacing: 2px; margin-bottom: 0.8rem;
+      color: var(--accent); text-shadow: 0 0 20px var(--accent-glow);
+    }
+    .section-desc { color: var(--muted); font-size: 1rem; max-width: 520px; margin: 0 auto; }
+
+    .packages-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; max-width: 760px; margin: 0 auto; }
+    .package-card {
+      position: relative;
+      background: linear-gradient(180deg, var(--card) 0%, var(--bg-soft) 100%);
+      border: 1px solid var(--border); border-radius: 6px;
+      padding: 2rem 1.6rem; display: flex; flex-direction: column;
+      transition: all 0.3s ease; overflow: hidden;
+      clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+    }
+    .package-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--blood), var(--accent));
+      opacity: 0; transition: opacity 0.3s; box-shadow: 0 0 15px var(--accent);
+    }
+    .package-card:hover { transform: translateY(-6px); border-color: var(--accent); box-shadow: 0 0 30px rgba(255, 60, 31, 0.3), 0 20px 40px -15px rgba(0,0,0,0.8); }
+    .package-card:hover::before { opacity: 1; }
+    .package-card.popular { border-color: var(--accent); box-shadow: 0 0 25px rgba(255, 60, 31, 0.25); }
+    .popular-badge {
+      position: absolute; top: 1.2rem; right: 1.2rem;
+      background: linear-gradient(135deg, var(--accent), var(--blood));
+      color: #0a0405; font-size: 0.65rem; font-weight: 900; padding: 0.35rem 0.8rem;
+      border-radius: 4px; text-transform: uppercase; letter-spacing: 1.5px;
+      box-shadow: 0 0 15px var(--accent-glow); z-index: 1;
+    }
+    .package-icon {
+      width: 60px; height: 60px; border-radius: 6px;
+      background: linear-gradient(135deg, rgba(255, 60, 31, 0.15), rgba(139, 0, 0, 0.3));
+      border: 1px solid var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem; color: var(--accent); margin-bottom: 1.2rem;
+      box-shadow: 0 0 20px rgba(255, 60, 31, 0.2); transform: rotate(-2deg);
+    }
+    .package-name {
+      font-family: 'Creepster', cursive; font-size: 1.8rem; letter-spacing: 2px;
+      margin-bottom: 1.2rem; color: var(--text); text-shadow: 0 0 15px rgba(255, 60, 31, 0.3);
+    }
+    .package-features { list-style: none; margin-bottom: 1.4rem; display: flex; flex-direction: column; gap: 0.55rem; flex-grow: 1; }
+    .package-features li { display: flex; align-items: center; gap: 0.6rem; font-size: 0.88rem; color: var(--muted); }
+    .package-features li i { color: var(--accent); font-size: 0.8rem; filter: drop-shadow(0 0 5px var(--accent-glow)); }
+    .package-price { display: flex; align-items: baseline; gap: 0.4rem; margin-bottom: 1.2rem; }
+    .price-value { font-family: 'Creepster', cursive; font-size: 2.2rem; color: var(--accent); text-shadow: 0 0 20px var(--accent-glow); }
+    .price-old { font-size: 0.9rem; color: #6b3d3d; text-decoration: line-through; margin-left: 0.3rem; }
+    .buy-btn {
+      background: linear-gradient(135deg, var(--accent), var(--blood));
+      border: 1px solid var(--accent); border-radius: 4px; padding: 0.95rem;
+      font-weight: 800; font-size: 1rem; color: #0a0405;
+      cursor: pointer; transition: all 0.2s; font-family: inherit;
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+      text-transform: uppercase; letter-spacing: 2px;
+      box-shadow: 0 0 15px rgba(255, 60, 31, 0.3); position: relative; overflow: hidden;
+    }
+    .buy-btn:hover { background: linear-gradient(135deg, var(--accent-hover), var(--accent)); transform: scale(1.03); box-shadow: 0 0 30px var(--accent); }
+    .buy-btn:active { transform: scale(0.98); }
+
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-top: 3rem; max-width: 900px; margin-left: auto; margin-right: auto; }
+    .feature-card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 1.8rem; text-align: center; transition: all 0.2s; }
+    .feature-card:hover { border-color: var(--accent); box-shadow: 0 0 25px rgba(255, 60, 31, 0.15); }
+    .feature-icon {
+      width: 60px; height: 60px; margin: 0 auto 1.2rem;
+      background: linear-gradient(135deg, rgba(255, 60, 31, 0.15), rgba(139, 0, 0, 0.3));
+      border: 1px solid var(--accent); border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; color: var(--accent); transform: rotate(-2deg);
+      box-shadow: 0 0 15px rgba(255, 60, 31, 0.2);
+    }
+    .feature-title { font-size: 1.1rem; font-weight: 800; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px; }
+    .feature-desc { color: var(--muted); font-size: 0.85rem; line-height: 1.5; }
+
+    .faq-list { max-width: 750px; margin: 0 auto; display: flex; flex-direction: column; gap: 0.8rem; }
+    .faq-item { background: var(--card); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; transition: all 0.2s; }
+    .faq-item.open { border-color: var(--accent); box-shadow: 0 0 20px rgba(255, 60, 31, 0.15); }
+    .faq-question {
+      width: 100%; background: none; border: none; padding: 1.2rem 1.5rem;
+      display: flex; justify-content: space-between; align-items: center;
+      color: var(--text); font-weight: 700; font-size: 0.95rem;
+      cursor: pointer; font-family: inherit; text-align: left; gap: 1rem;
+    }
+    .faq-question i { color: var(--accent); transition: transform 0.3s; flex-shrink: 0; }
+    .faq-item.open .faq-question i { transform: rotate(180deg); }
+    .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+    .faq-item.open .faq-answer { max-height: 300px; }
+    .faq-answer-inner { padding: 0 1.5rem 1.3rem; color: var(--muted); font-size: 0.88rem; line-height: 1.6; }
+
+    .info-page-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.2rem; max-width: 1000px; margin: 0 auto;
+    }
+    .info-page-block {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 6px; padding: 1.5rem;
+    }
+    .info-page-block h4 {
+      font-family: 'Creepster', cursive; font-size: 1.3rem; letter-spacing: 1px;
+      color: var(--accent); margin-bottom: 0.7rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .info-page-block p { color: var(--muted); font-size: 0.9rem; line-height: 1.6; }
+    .info-page-block ul { list-style: none; margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.4rem; }
+    .info-page-block ul li { color: var(--muted); font-size: 0.88rem; display: flex; align-items: center; gap: 0.5rem; }
+    .info-page-block ul li i { color: var(--accent); font-size: 0.75rem; }
+
+    .site-footer { border-top: 2px solid var(--border-glow); padding: 3rem 0 2rem; position: relative; }
+    .footer-inner { display: flex; justify-content: space-between; align-items: flex-start; gap: 2rem; flex-wrap: wrap; margin-bottom: 2rem; }
+    .footer-brand { max-width: 300px; }
+    .footer-brand p { color: var(--muted); font-size: 0.85rem; line-height: 1.6; margin-top: 1rem; }
+    .footer-col h4 { font-size: 0.9rem; font-weight: 800; margin-bottom: 1rem; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+    .footer-col ul a { color: var(--muted); text-decoration: none; font-size: 0.88rem; transition: all 0.2s; cursor: pointer; }
+    .footer-col ul a:hover { color: var(--accent); text-shadow: 0 0 10px var(--accent-glow); }
+    .footer-bottom { text-align: center; padding-top: 2rem; border-top: 1px solid var(--border); color: #5c3030; font-size: 0.8rem; letter-spacing: 1px; }
+
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(10, 4, 5, 0.85);
+      backdrop-filter: blur(8px); z-index: 1000;
+      display: none; align-items: center; justify-content: center; padding: 1.5rem;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: linear-gradient(180deg, var(--card) 0%, var(--bg-soft) 100%);
+      border: 1px solid var(--accent); border-radius: 8px;
+      width: 100%; max-width: 560px; max-height: 85vh;
+      display: flex; flex-direction: column;
+      box-shadow: 0 0 60px rgba(255, 60, 31, 0.3), 0 40px 80px -20px #000;
+      animation: modalIn 0.3s ease;
+      clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 15px 100%, 0 calc(100% - 15px));
+    }
+    @keyframes modalIn { from { opacity: 0; transform: scale(0.9) rotate(-1deg); } to { opacity: 1; transform: scale(1) rotate(0); } }
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.5rem 1.8rem; border-bottom: 1px solid var(--border);
+      background: linear-gradient(90deg, transparent, rgba(255, 60, 31, 0.05), transparent);
+    }
+    .modal-title {
+      font-family: 'Creepster', cursive; font-size: 1.6rem; letter-spacing: 2px;
+      display: flex; align-items: center; gap: 0.6rem;
+      color: var(--accent); text-shadow: 0 0 15px var(--accent-glow);
+    }
+    .modal-close {
+      background: none; border: 1px solid var(--border); color: var(--muted);
+      font-size: 1.4rem; cursor: pointer; width: 36px; height: 36px;
+      border-radius: 4px; display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; line-height: 1;
+    }
+    .modal-close:hover { background: var(--accent); color: #0a0405; border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
+    .modal-body { flex: 1; overflow-y: auto; padding: 1.5rem 1.8rem; }
+    .modal-footer { padding: 1.5rem 1.8rem; border-top: 1px solid var(--border); }
+
+    .cart-empty { text-align: center; padding: 3rem 1rem; color: var(--muted); }
+    .cart-empty i { font-size: 3rem; color: var(--border); margin-bottom: 1rem; display: block; }
+    .cart-item {
+      display: flex; align-items: center; gap: 1rem;
+      background: var(--bg-soft); border: 1px solid var(--border);
+      border-radius: 4px; padding: 1rem 1.2rem; margin-bottom: 0.8rem;
+    }
+    .cart-item-icon {
+      width: 44px; height: 44px; flex-shrink: 0;
+      background: linear-gradient(135deg, rgba(255, 60, 31, 0.15), rgba(139, 0, 0, 0.3));
+      border: 1px solid var(--accent); border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--accent); font-size: 1.1rem;
+    }
+    .cart-item-info { flex: 1; min-width: 0; }
+    .cart-item-name { font-weight: 700; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cart-item-price { color: var(--accent); font-weight: 800; font-size: 0.9rem; margin-top: 0.15rem; }
+    .cart-item-qty { display: flex; align-items: center; gap: 0.5rem; background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 0.2rem; }
+    .qty-btn { width: 26px; height: 26px; border-radius: 3px; border: none; background: var(--border); color: var(--text); cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s; font-family: inherit; }
+    .qty-btn:hover { background: var(--accent); color: #0a0405; box-shadow: 0 0 10px var(--accent-glow); }
+    .qty-value { min-width: 20px; text-align: center; font-weight: 800; font-size: 0.9rem; }
+    .cart-item-remove {
+      background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3);
+      color: var(--danger); width: 32px; height: 32px; border-radius: 4px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; flex-shrink: 0;
+    }
+    .cart-item-remove:hover { background: var(--danger); color: white; box-shadow: 0 0 15px rgba(239, 68, 68, 0.5); }
+
+    .cart-total-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; }
+    .cart-total-label { color: var(--muted); font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; }
+    .cart-total-value { font-family: 'Creepster', cursive; font-size: 2rem; color: var(--accent); text-shadow: 0 0 15px var(--accent-glow); }
+
+    .checkout-btn {
+      width: 100%; background: linear-gradient(135deg, var(--accent), var(--blood));
+      border: 1px solid var(--accent); border-radius: 4px; padding: 1.1rem;
+      font-weight: 800; font-size: 1rem; color: #0a0405;
+      cursor: pointer; font-family: inherit; display: flex; align-items: center;
+      justify-content: center; gap: 0.6rem; transition: all 0.2s;
+      text-transform: uppercase; letter-spacing: 2px;
+      box-shadow: 0 0 20px rgba(255, 60, 31, 0.3);
+    }
+    .checkout-btn:hover:not(:disabled) { background: linear-gradient(135deg, var(--accent-hover), var(--accent)); transform: scale(1.02); box-shadow: 0 0 35px var(--accent); }
+    .checkout-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .checkout-form { display: flex; flex-direction: column; gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+    .form-group label { font-size: 0.8rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+    .form-group input, .form-group select {
+      background: var(--bg-soft); border: 1px solid var(--border);
+      border-radius: 4px; padding: 0.85rem 1rem; color: var(--text);
+      font-family: inherit; font-size: 0.95rem; transition: all 0.2s; width: 100%;
+    }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 15px rgba(255, 60, 31, 0.2); }
+    .form-group input::placeholder { color: #5c3030; }
+
+    .payment-methods { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; }
+    .payment-method {
+      background: var(--bg-soft); border: 1px solid var(--border);
+      border-radius: 4px; padding: 0.8rem 0.5rem; text-align: center;
+      cursor: pointer; transition: all 0.2s; font-size: 0.75rem;
+      font-weight: 700; color: var(--muted);
+      display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+    .payment-method i { font-size: 1.3rem; }
+    .payment-method:hover { border-color: var(--accent); color: var(--text); }
+    .payment-method.selected { border-color: var(--accent); background: rgba(255, 60, 31, 0.1); color: var(--accent); box-shadow: 0 0 15px rgba(255, 60, 31, 0.2); }
+
+    .auth-tabs {
+      display: flex; margin-bottom: 1.5rem;
+      border: 1px solid var(--border); border-radius: 4px; overflow: hidden;
+    }
+    .auth-tab {
+      flex: 1; padding: 0.85rem; background: var(--bg-soft); border: none;
+      color: var(--muted); font-family: inherit; font-weight: 700;
+      font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .auth-tab:hover { color: var(--text); }
+    .auth-tab.active {
+      background: linear-gradient(135deg, var(--accent), var(--blood));
+      color: #0a0405; box-shadow: 0 0 15px rgba(255, 60, 31, 0.3);
+    }
+    .auth-form { display: flex; flex-direction: column; gap: 1rem; }
+    .auth-form .form-group { gap: 0.5rem; }
+    .auth-form .form-hint { font-size: 0.75rem; color: var(--muted); margin-top: 0.2rem; }
+    .auth-form .form-error {
+      background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fca5a5; padding: 0.7rem 1rem; border-radius: 4px;
+      font-size: 0.85rem; display: none;
+    }
+    .auth-form .form-error.show { display: block; }
+    .auth-submit-btn {
+      background: linear-gradient(135deg, var(--accent), var(--blood));
+      border: 1px solid var(--accent); border-radius: 4px; padding: 1rem;
+      font-weight: 800; font-size: 1rem; color: #0a0405;
+      cursor: pointer; font-family: inherit;
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+      text-transform: uppercase; letter-spacing: 2px;
+      box-shadow: 0 0 20px rgba(255, 60, 31, 0.3); transition: all 0.2s;
+    }
+    .auth-submit-btn:hover { background: linear-gradient(135deg, var(--accent-hover), var(--accent)); transform: scale(1.02); box-shadow: 0 0 35px var(--accent); }
+    .auth-submit-btn:active { transform: scale(0.98); }
+
+    .profile-info {
+      background: var(--bg-soft); border: 1px solid var(--border);
+      border-radius: 6px; padding: 1.2rem; margin-bottom: 1rem;
+    }
+    .profile-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.6rem 0; border-bottom: 1px solid var(--border);
+    }
+    .profile-row:last-child { border-bottom: none; }
+    .profile-label { color: var(--muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
+    .profile-value { font-weight: 700; color: var(--text); }
+    .profile-value.accent { color: var(--accent); font-family: 'Creepster', cursive; font-size: 1.2rem; letter-spacing: 1px; }
+
+    .logout-btn {
+      width: 100%; background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      border-radius: 4px; padding: 0.9rem;
+      color: #fca5a5; font-family: inherit; font-weight: 700;
+      font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;
+      cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    }
+    .logout-btn:hover { background: var(--danger); color: white; box-shadow: 0 0 20px rgba(239, 68, 68, 0.5); }
+
+    .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 2000; display: flex; flex-direction: column; gap: 0.6rem; }
+    .toast {
+      background: var(--card); border: 1px solid var(--accent);
+      border-left: 4px solid var(--accent); border-radius: 4px;
+      padding: 1rem 1.3rem; display: flex; align-items: center; gap: 0.8rem;
+      box-shadow: 0 0 30px rgba(255, 60, 31, 0.3), 0 15px 30px -10px #000;
+      animation: toastIn 0.3s ease; max-width: 340px; font-size: 0.9rem; font-weight: 600;
+    }
+    @keyframes toastIn { from { opacity: 0; transform: translateX(40px) rotate(2deg); } to { opacity: 1; transform: translateX(0) rotate(0); } }
+    .toast.success { border-left-color: var(--success); border-color: var(--success); }
+    .toast.error { border-left-color: var(--danger); border-color: var(--danger); }
+    .toast i { font-size: 1.2rem; flex-shrink: 0; }
+    .toast.success i { color: var(--success); }
+    .toast.error i { color: var(--danger); }
+    .toast.info i { color: var(--accent); }
+    .toast.out { animation: toastOut 0.3s ease forwards; }
+    @keyframes toastOut { to { opacity: 0; transform: translateX(40px); } }
+
+    @media (max-width: 900px) { .main-nav { display: none; } }
+    @media (max-width: 700px) {
+      .side-menu { width: 100vw; max-width: 100vw; }
+      .side-menu-tabs { width: 150px; }
+      .side-menu-tab { padding: 1rem 0.7rem; font-size: 0.72rem; }
+    }
+    @media (max-width: 600px) {
+      .container { padding: 0 1rem; }
+      .ip-hero { padding: 2.5rem 0 2rem; }
+      .ip-card { padding: 1.4rem 1rem; }
+      .quick-links { grid-template-columns: 1fr; }
+      .packages-grid { grid-template-columns: 1fr; }
+      .modal { max-height: 92vh; border-radius: 6px; }
+      .modal-header, .modal-body, .modal-footer { padding: 1.2rem 1.3rem; }
+      .cart-item { padding: 0.8rem 0.9rem; gap: 0.7rem; }
+      .cart-item-icon { width: 38px; height: 38px; font-size: 0.95rem; }
+      .payment-methods { grid-template-columns: 1fr; }
+      .footer-inner { flex-direction: column; }
+      .toast-container { left: 16px; right: 16px; bottom: 16px; }
+      .toast { max-width: 100%; }
+      .logo { font-size: 1.5rem; margin-left: 3rem; }
+      .menu-toggle { top: 1rem; left: 1rem; width: 44px; height: 44px; font-size: 1.2rem; }
+      .side-menu-tabs { width: 130px; }
+      .side-menu-tab { padding: 0.9rem 0.5rem; font-size: 0.68rem; gap: 0.4rem; }
+      .side-menu-tab i { font-size: 0.9rem; width: 16px; }
+      .user-btn .user-name { display: none; }
+      .screenshot-cat-btn { font-size: 0.65rem; min-width: 100px; padding: 0.6rem 0.4rem; }
+      .ip-value { font-size: 1.4rem; }
+    }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--accent), var(--blood)); border-radius: 4px; box-shadow: 0 0 10px var(--accent-glow); }
+  </style>
+</head>
+<body>
+
+  <button class="menu-toggle" id="menuToggle" aria-label="Открыть меню">
+    <i class="fas fa-bars"></i>
+  </button>
+  <div class="overlay" id="overlay"></div>
+
+  <!-- ===== БОКОВОЕ МЕНЮ ===== -->
+  <aside class="side-menu" id="sideMenu">
+    <div class="side-menu-header">
+      <div class="side-menu-title"><i class="fas fa-fire"></i> Меню</div>
+      <button class="side-menu-close" id="sideMenuClose" aria-label="Закрыть меню">&times;</button>
+    </div>
+    <div class="side-menu-body">
+      <div class="side-menu-tabs">
+        <button class="side-menu-tab active" data-page="home">
+          <i class="fas fa-server"></i> IP сервера
+        </button>
+        <button class="side-menu-tab" data-page="shop">
+          <i class="fas fa-store"></i> Магазин
+        </button>
+        <button class="side-menu-tab" data-page="info">
+          <i class="fas fa-circle-info"></i> Информация
+        </button>
+        <button class="side-menu-tab" data-page="screenshots">
+          <i class="fas fa-images"></i> Скриншоты
+          <span id="screenshotsTotalBadge" style="margin-left:auto;background:var(--accent);color:#0a0405;border-radius:10px;font-size:0.6rem;font-weight:900;padding:0.1rem 0.4rem;min-width:18px;text-align:center;display:none;">0</span>
+        </button>
+      </div>
+      <div class="side-menu-content">
+        <div class="tab-panel active" id="tab-home">
+          <div class="info-block">
+            <h4><i class="fas fa-server"></i> IP сервера</h4>
+            <p>Скопируйте IP и добавьте сервер в список в Minecraft.</p>
+            <p style="margin-top:0.6rem;color:var(--accent);font-weight:800;font-size:1rem;">playingzone.aternos.me</p>
+          </div>
+          <button class="shop-go-btn" onclick="tryOpenShop(); closeMenu();">
+            <i class="fas fa-store"></i> Перейти в магазин
+          </button>
+        </div>
+        <div class="tab-panel" id="tab-shop">
+          <div class="info-block">
+            <h4><i class="fas fa-store"></i> Магазин</h4>
+            <p>Магазин ещё в разработке. Скоро откроем!</p>
+          </div>
+          <button class="shop-go-btn" onclick="tryOpenShop(); closeMenu();">
+            <i class="fas fa-fire"></i> Попробовать открыть
+          </button>
+        </div>
+        <div class="tab-panel" id="tab-info">
+          <div class="info-block">
+            <h4><i class="fas fa-circle-info"></i> Информация</h4>
+            <p>Узнайте больше о сервере, правилах и возможностях.</p>
+          </div>
+          <button class="shop-go-btn" onclick="navigateTo('info'); closeMenu();">
+            <i class="fas fa-circle-info"></i> Открыть информацию
+          </button>
+        </div>
+        <div class="tab-panel" id="tab-screenshots">
+          <div class="info-block">
+            <h4><i class="fas fa-images"></i> Скриншоты</h4>
+            <p>Посмотрите скриншоты сервера. Art1k может добавлять свои — они видны всем игрокам.</p>
+          </div>
+          <button class="shop-go-btn" onclick="navigateTo('screenshots'); closeMenu();">
+            <i class="fas fa-images"></i> Открыть скриншоты
+          </button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== ЛАЙТБОКС ===== -->
+  <div class="lightbox" id="lightbox">
+    <div class="lightbox-content">
+      <button class="lightbox-close" id="lightboxClose">&times;</button>
+      <div class="lightbox-image" id="lightboxImage">
+        <i class="fas fa-image"></i>
+        <p id="lightboxCaption" style="font-size: 0.9rem;">Скриншот</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== HEADER ===== -->
+  <header class="site-header">
+    <div class="container">
+      <div class="header-inner">
+        <a href="#/" class="logo" data-nav="home">
+          <div class="logo-icon"><i class="fas fa-fire"></i></div>
+          <div class="logo-text">Play<span>zone</span></div>
+        </a>
+        <nav class="main-nav" id="mainNav">
+          <a href="#/" data-nav="home"><i class="fas fa-server"></i> IP</a>
+          <a href="#/shop" data-nav="shop" id="navShop"><i class="fas fa-store"></i> Магазин</a>
+          <a href="#/info" data-nav="info"><i class="fas fa-circle-info"></i> Информация</a>
+          <a href="#/screenshots" data-nav="screenshots"><i class="fas fa-images"></i> Скриншоты</a>
+        </nav>
+        <div class="header-actions">
+          <button class="user-btn" id="userBtn">
+            <i class="fas fa-user" id="userBtnIcon"></i>
+            <span class="user-name" id="userBtnText">Войти</span>
+          </button>
+          <button class="cart-btn" id="openCartBtn">
+            <i class="fas fa-fire-flame-curved"></i>
+            <span>Корзина</span>
+            <span class="cart-count" id="cartCount">0</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== ГЛАВНАЯ ===== -->
+  <main class="page active" id="page-home">
+    <section class="ip-hero">
+      <div class="container">
+        <div class="ip-badge"><i class="fas fa-fire"></i> Добро пожаловать</div>
+        <h1 class="ip-title">Наш сервер</h1>
+        <p class="ip-subtitle">Скопируй IP и добавь сервер в Minecraft</p>
+        <div class="ip-card">
+          <div class="ip-label">IP адрес сервера</div>
+          <div class="ip-value" id="ipValue">playingzone.aternos.me</div>
+          <div class="ip-actions">
+            <button class="ip-btn" id="copyIpBtn">
+              <i class="fas fa-copy"></i> <span id="copyIpText">Копировать IP</span>
+            </button>
+            <button class="ip-btn" onclick="tryOpenShop()">
+              <i class="fas fa-store"></i> В магазин
+            </button>
+          </div>
+          <div class="ip-hint">
+            <i class="fas fa-info-circle"></i> Версия: 1.21.11 • Java Edition
+          </div>
+        </div>
+        <div class="quick-links">
+          <a class="quick-link" onclick="tryOpenShop()" id="quickShopLink">
+            <div class="quick-link-icon"><i class="fas fa-store"></i></div>
+            <div class="quick-link-title">Магазин</div>
+            <div class="quick-link-desc">Донат-пакеты и привилегии</div>
+          </a>
+          <a class="quick-link" onclick="navigateTo('info')">
+            <div class="quick-link-icon"><i class="fas fa-circle-info"></i></div>
+            <div class="quick-link-title">Информация</div>
+            <div class="quick-link-desc">О сервере, правилах и гарантиях</div>
+          </a>
+          <a class="quick-link" onclick="navigateTo('screenshots')">
+            <div class="quick-link-icon"><i class="fas fa-images"></i></div>
+            <div class="quick-link-title">Скриншоты</div>
+            <div class="quick-link-desc">Спавн, ивенты и механики</div>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== МАГАЗИН ===== -->
+  <main class="page" id="page-shop">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Магазин доната</h2>
+        <p class="section-desc">Все привилегии выдаются навсегда. Действуют на всех режимах сервера.</p>
+      </div>
+      <div class="packages-grid" id="packagesGrid"></div>
+      <div class="section-header" style="margin-top:4rem;">
+        <h2 class="section-title">Почему выбирают нас</h2>
+        <p class="section-desc">Мы заботимся о каждом игроке и делаем покупку максимально простой.</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-bolt"></i></div>
+          <div class="feature-title">Мгновенная выдача</div>
+          <div class="feature-desc">Донат приходит автоматически в течение 1 минуты после оплаты.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-skull"></i></div>
+          <div class="feature-title">Безопасная оплата</div>
+          <div class="feature-desc">Платежи проходят через защищённые шлюзы. Данные не хранятся.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-headset"></i></div>
+          <div class="feature-title">Поддержка 24/7</div>
+          <div class="feature-desc">Пишите в Discord или Telegram — ответим быстро.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fas fa-rotate-left"></i></div>
+          <div class="feature-title">Возврат средств</div>
+          <div class="feature-desc">Если донат не выдался — вернём деньги в течение 24 часов.</div>
+        </div>
+      </div>
+      <div class="section-header" style="margin-top:4rem;">
+        <h2 class="section-title">Частые вопросы</h2>
+        <p class="section-desc">Не нашли ответ? Напишите нам в поддержку.</p>
+      </div>
+      <div class="faq-list">
+        <div class="faq-item">
+          <button class="faq-question">Как быстро я получу донат после оплаты?<i class="fas fa-chevron-down"></i></button>
+          <div class="faq-answer"><div class="faq-answer-inner">Обычно выдача происходит автоматически в течение 1–2 минут после подтверждения платежа. Если не получили за 15 минут — обратитесь в поддержку с чеком.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">Можно ли вернуть деньги?<i class="fas fa-chevron-down"></i></button>
+          <div class="faq-answer"><div class="faq-answer-inner">Да, если донат не был выдан по технической причине. Напишите в поддержку, приложите чек и никнейм. Возврат в течение 24 часов.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">Что делать, если я указал неверный никнейм?<i class="fas fa-chevron-down"></i></button>
+          <div class="faq-answer"><div class="faq-answer-inner">Сразу после оплаты напишите в поддержку с чеком и правильным никнеймом — переназначим донат вручную.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">Какие способы оплаты доступны?<i class="fas fa-chevron-down"></i></button>
+          <div class="faq-answer"><div class="faq-answer-inner">Банковские карты (Visa/MasterCard/МИР), СБП, ЮMoney, криптовалюта (USDT, BTC, ETH).</div></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===== ИНФОРМАЦИЯ ===== -->
+  <main class="page" id="page-info">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Информация</h2>
+        <p class="section-desc">Всё, что нужно знать о нашем сервере и магазине.</p>
+      </div>
+      <div class="info-page-grid">
+        <div class="info-page-block">
+          <h4><i class="fas fa-server"></i> О сервере</h4>
+          <p>Playzone — игровой сервер с уникальными механиками, ивентами и дружным сообществом. Мы регулярно обновляем контент и проводим конкурсы.</p>
+        </div>
+        <div class="info-page-block">
+          <h4><i class="fas fa-store"></i> О магазине</h4>
+          <p>Playzone Shop — официальный магазин донат-привилегий. Честные условия, мгновенная выдача и поддержка 24/7. <strong style="color:var(--accent);">Сейчас в разработке.</strong></p>
+        </div>
+        <div class="info-page-block">
+          <h4><i class="fas fa-star"></i> Что вы получаете</h4>
+          <ul>
+            <li><i class="fas fa-fire"></i> Мгновенную выдачу после оплаты</li>
+            <li><i class="fas fa-fire"></i> Безопасные платёжные шлюзы</li>
+            <li><i class="fas fa-fire"></i> Возврат средств при проблемах</li>
+            <li><i class="fas fa-fire"></i> Поддержку в Discord и Telegram</li>
+          </ul>
+        </div>
+        <div class="info-page-block">
+          <h4><i class="fas fa-clock"></i> Режим работы</h4>
+          <p>Магазин работает круглосуточно. Автоматическая выдача доната — 24/7. Поддержка отвечает в течение 1–2 часов.</p>
+        </div>
+        <div class="info-page-block">
+          <h4><i class="fas fa-shield-halved"></i> Гарантии</h4>
+          <p>Если донат не был выдан по технической причине — вернём деньги в течение 24 часов. Все платежи проходят через защищённые шлюзы.</p>
+        </div>
+        <div class="info-page-block">
+          <h4><i class="fas fa-gavel"></i> Правила</h4>
+          <p>Уважайте других игроков, не используйте читы и не нарушайте правила сервера. За нарушения — бан без возврата средств.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===== СКРИНШОТЫ ===== -->
+  <main class="page" id="page-screenshots">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Скриншоты</h2>
+        <p class="section-desc">Посмотрите, как выглядит наш сервер. Скриншоты Art1k видны всем игрокам.</p>
+      </div>
+      <div class="screenshot-categories" id="screenshotCategories">
+        <button class="screenshot-cat-btn active" data-cat="spawn">
+          <i class="fas fa-mountain-sun"></i> Спавн сервера
+        </button>
+        <button class="screenshot-cat-btn" data-cat="events">
+          <i class="fas fa-trophy"></i> Ивенты
+        </button>
+        <button class="screenshot-cat-btn" data-cat="mechanics">
+          <i class="fas fa-wand-magic-sparkles"></i> Механики
+        </button>
+      </div>
+      <div class="screenshot-cat-panel active" data-cat-panel="spawn">
+        <div class="screenshot-cat-header">
+          <div class="screenshot-cat-title"><i class="fas fa-mountain-sun"></i> Спавн сервера</div>
+          <div class="screenshot-count" id="countSpawn">0</div>
+        </div>
+        <div id="uploadSpawn"></div>
+        <div class="screenshots-grid" id="gridSpawn"></div>
+      </div>
+      <div class="screenshot-cat-panel" data-cat-panel="events">
+        <div class="screenshot-cat-header">
+          <div class="screenshot-cat-title"><i class="fas fa-trophy"></i> Ивенты и конкурсы</div>
+          <div class="screenshot-count" id="countEvents">0</div>
+        </div>
+        <div id="uploadEvents"></div>
+        <div class="screenshots-grid" id="gridEvents"></div>
+      </div>
+      <div class="screenshot-cat-panel" data-cat-panel="mechanics">
+        <div class="screenshot-cat-header">
+          <div class="screenshot-cat-title"><i class="fas fa-wand-magic-sparkles"></i> Кастомные механики</div>
+          <div class="screenshot-count" id="countMechanics">0</div>
+        </div>
+        <div id="uploadMechanics"></div>
+        <div class="screenshots-grid" id="gridMechanics"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <a href="#/" class="logo" style="font-size:1.5rem;" data-nav="home">
+            <div class="logo-icon" style="width:36px;height:36px;font-size:1.1rem;"><i class="fas fa-fire"></i></div>
+            <div class="logo-text">Play<span>zone</span></div>
+          </a>
+          <p>Игровой сервер Minecraft и магазин доната. IP: <strong style="color:var(--accent);">playingzone.aternos.me</strong></p>
+        </div>
+        <div class="footer-col">
+          <h4>Навигация</h4>
+          <ul>
+            <li><a data-nav="home">IP сервера</a></li>
+            <li><a onclick="tryOpenShop()">Магазин</a></li>
+            <li><a data-nav="info">Информация</a></li>
+            <li><a data-nav="screenshots">Скриншоты</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Поддержка</h4>
+          <ul>
+            <li><a href="https://discord.gg/6zFtyXc8th" target="_blank" rel="noopener noreferrer" onclick="showToast('Открываем Discord','info');">Discord</a></li>
+            <li><a onclick="showToast('Telegram: @playzone_support','info');">Telegram</a></li>
+            <li><a onclick="showToast('Email: support@playzone.ru','info');">Email</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">© 2025 Playzone. Все права защищены.</div>
+    </div>
+  </footer>
+
+  <!-- ===== AUTH MODAL ===== -->
+  <div class="modal-overlay" id="authModal">
+    <div class="modal" style="max-width:460px;">
+      <div class="modal-header">
+        <div class="modal-title" id="authModalTitle"><i class="fas fa-user-plus"></i> Регистрация</div>
+        <button class="modal-close" id="closeAuthBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="auth-tabs">
+          <button type="button" class="auth-tab active" id="tabRegisterBtn">Регистрация</button>
+          <button type="button" class="auth-tab" id="tabLoginBtn">Вход</button>
+        </div>
+        <div class="auth-form" id="registerForm">
+          <div class="form-group">
+            <label for="regNickname">Никнейм *</label>
+            <input type="text" id="regNickname" placeholder="Ваш игровой ник" maxlength="20">
+            <div class="form-hint">От 3 до 20 символов. Буквы, цифры и _</div>
+          </div>
+          <div class="form-group">
+            <label for="regPassword">Пароль *</label>
+            <input type="password" id="regPassword" placeholder="Минимум 6 символов">
+          </div>
+          <div class="form-group">
+            <label for="regPassword2">Повторите пароль *</label>
+            <input type="password" id="regPassword2" placeholder="Повторите пароль">
+          </div>
+          <div class="form-error" id="regError"></div>
+          <button type="button" class="auth-submit-btn" id="registerSubmitBtn">
+            <i class="fas fa-user-plus"></i> Зарегистрироваться
+          </button>
+        </div>
+        <div class="auth-form" id="loginForm" style="display:none;">
+          <div class="form-group">
+            <label for="loginNickname">Никнейм *</label>
+            <input type="text" id="loginNickname" placeholder="Ваш игровой ник">
+          </div>
+          <div class="form-group">
+            <label for="loginPassword">Пароль *</label>
+            <input type="password" id="loginPassword" placeholder="Ваш пароль">
+          </div>
+          <div class="form-error" id="loginError"></div>
+          <button type="button" class="auth-submit-btn" id="loginSubmitBtn">
+            <i class="fas fa-sign-in-alt"></i> Войти
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PROFILE MODAL ===== -->
+  <div class="modal-overlay" id="profileModal">
+    <div class="modal" style="max-width:460px;">
+      <div class="modal-header">
+        <div class="modal-title"><i class="fas fa-user-circle"></i> Профиль</div>
+        <button class="modal-close" id="closeProfileBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="profile-info">
+          <div class="profile-row"><span class="profile-label">Никнейм</span><span class="profile-value accent" id="profileNickname">—</span></div>
+          <div class="profile-row"><span class="profile-label">Дата регистрации</span><span class="profile-value" id="profileDate">—</span></div>
+          <div class="profile-row"><span class="profile-label">Заказов</span><span class="profile-value" id="profileOrders">0</span></div>
+        </div>
+        <button type="button" class="logout-btn" id="logoutBtn">
+          <i class="fas fa-sign-out-alt"></i> Выйти из аккаунта
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CART MODAL ===== -->
+  <div class="modal-overlay" id="cartModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title"><i class="fas fa-fire-flame-curved"></i> Корзина</div>
+        <button class="modal-close" id="closeCartBtn">&times;</button>
+      </div>
+      <div class="modal-body" id="cartBody"></div>
+      <div class="modal-footer">
+        <div class="cart-total-row">
+          <span class="cart-total-label">Итого:</span>
+          <span class="cart-total-value" id="cartTotal">0 ₽</span>
+        </div>
+        <button class="checkout-btn" id="checkoutBtn" disabled>
+          <i class="fas fa-credit-card"></i> Перейти к оплате
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CHECKOUT MODAL ===== -->
+  <div class="modal-overlay" id="checkoutModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title"><i class="fas fa-credit-card"></i> Оформление заказа</div>
+        <button class="modal-close" id="closeCheckoutBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="checkout-form" id="checkoutForm">
+          <div class="form-group">
+            <label for="nickname">Никнейм в игре *</label>
+            <input type="text" id="nickname" placeholder="Введите ваш игровой ник">
+          </div>
+          <div class="form-group">
+            <label for="email">Email для чека *</label>
+            <input type="email" id="email" placeholder="you@example.com">
+          </div>
+          <div class="form-group">
+            <label>Способ оплаты</label>
+            <div class="payment-methods" id="paymentMethods">
+              <div class="payment-method selected" data-method="card"><i class="fas fa-credit-card"></i><span>Карта</span></div>
+              <div class="payment-method" data-method="sbp"><i class="fas fa-mobile-screen"></i><span>СБП</span></div>
+              <div class="payment-method" data-method="crypto"><i class="fab fa-bitcoin"></i><span>Крипта</span></div>
+            </div>
+          </div>
+          <div class="cart-total-row" style="margin-bottom:0;">
+            <span class="cart-total-label">К оплате:</span>
+            <span class="cart-total-value" id="checkoutTotal">0 ₽</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="checkout-btn" id="payBtn"><i class="fas fa-lock"></i> Оплатить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SUCCESS MODAL ===== -->
+  <div class="modal-overlay" id="successModal">
+    <div class="modal" style="max-width:420px;text-align:center;">
+      <div class="modal-body" style="padding:2.5rem 2rem;">
+        <div style="width:80px;height:80px;border-radius:6px;background:linear-gradient(135deg, rgba(34,197,94,0.2), rgba(139,0,0,0.3));border:1px solid var(--success);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;box-shadow:0 0 25px rgba(34,197,94,0.3);">
+          <i class="fas fa-check" style="font-size:2.5rem;color:var(--success);"></i>
+        </div>
+        <h2 style="font-family:'Creepster',cursive;font-size:1.8rem;letter-spacing:2px;margin-bottom:0.7rem;color:var(--accent);text-shadow:0 0 15px var(--accent-glow);">Оплата прошла!</h2>
+        <p style="color:var(--muted);font-size:0.9rem;line-height:1.6;margin-bottom:1.8rem;" id="successText">Донат будет выдан в течение 1–2 минут. Спасибо за поддержку!</p>
+        <button class="checkout-btn" onclick="closeSuccessModal()"><i class="fas fa-check"></i> Отлично</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TOAST ===== -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    const SERVER_IP = 'playingzone.aternos.me';
+    const SHOP_OWNER = 'art1k';
+    const SCREENSHOT_UPLOADER = 'art1k';
+
+    const PACKAGES = [
+      { id: 1, name: 'START', price: 99, category: 'basic', icon: 'fa-seedling',
+        features: ['Префикс START в чате', '2 точки дома'] },
+      { id: 2, name: 'VIP', price: 199, oldPrice: 299, category: 'basic', icon: 'fa-skull', popular: true,
+        features: ['Префикс VIP в чате', '3 точки дома', 'Команда /co i'] }
+    ];
+
+    const SCREENSHOT_CATEGORIES = [
+      { id: 'spawn', title: 'Спавн сервера', icon: 'fa-mountain-sun',
+        base: [
+          { id: 'b101', title: 'Общий вид спавна', src: '', icon: 'fa-mountain-sun' },
+          { id: 'b102', title: 'Портал на спавне', src: '', icon: 'fa-door-open' }
+        ] },
+      { id: 'events', title: 'Ивенты и конкурсы', icon: 'fa-trophy',
+        base: [
+          { id: 'b201', title: 'PvP-турнир', src: '', icon: 'fa-swords' },
+          { id: 'b202', title: 'Конкурс строителей', src: '', icon: 'fa-hammer' }
+        ] },
+      { id: 'mechanics', title: 'Кастомные механики', icon: 'fa-wand-magic-sparkles',
+        base: [
+          { id: 'b301', title: 'Кастомные зачарования', src: '', icon: 'fa-wand-magic-sparkles' },
+          { id: 'b302', title: 'Уникальные предметы', src: '', icon: 'fa-gem' }
+        ] }
+    ];
+
+    const STORAGE_USERS = 'playzone_users';
+    const STORAGE_CURRENT = 'playzone_current_user';
+    const STORAGE_SCREENSHOTS = 'playzone_category_screenshots';
+
+    let cart = [];
+    let selectedPayment = 'card';
+    let currentUser = null;
+    let userScreenshots = {};
+
+    const $ = (sel) => document.querySelector(sel);
+    const $$ = (sel) => document.querySelectorAll(sel);
+
+    const packagesGrid = $('#packagesGrid');
+    const cartCount = $('#cartCount');
+    const cartBody = $('#cartBody');
+    const cartTotal = $('#cartTotal');
+    const checkoutBtn = $('#checkoutBtn');
+    const cartModal = $('#cartModal');
+    const checkoutModal = $('#checkoutModal');
+    const successModal = $('#successModal');
+    const checkoutTotal = $('#checkoutTotal');
+    const toastContainer = $('#toastContainer');
+
+    const menuToggle = $('#menuToggle');
+    const sideMenu = $('#sideMenu');
+    const sideMenuClose = $('#sideMenuClose');
+    const overlay = $('#overlay');
+    const lightbox = $('#lightbox');
+    const lightboxClose = $('#lightboxClose');
+    const lightboxImage = $('#lightboxImage');
+    const lightboxCaption = $('#lightboxCaption');
+    const screenshotsTotalBadge = $('#screenshotsTotalBadge');
+
+    const userBtn = $('#userBtn');
+    const userBtnIcon = $('#userBtnIcon');
+    const userBtnText = $('#userBtnText');
+    const authModal = $('#authModal');
+    const authModalTitle = $('#authModalTitle');
+    const closeAuthBtn = $('#closeAuthBtn');
+    const tabRegisterBtn = $('#tabRegisterBtn');
+    const tabLoginBtn = $('#tabLoginBtn');
+    const registerForm = $('#registerForm');
+    const loginForm = $('#loginForm');
+    const regError = $('#regError');
+    const loginError = $('#loginError');
+
+    const profileModal = $('#profileModal');
+    const closeProfileBtn = $('#closeProfileBtn');
+    const profileNickname = $('#profileNickname');
+    const profileDate = $('#profileDate');
+    const profileOrders = $('#profileOrders');
+    const logoutBtn = $('#logoutBtn');
+
+    const navShop = $('#navShop');
+    const openCartBtn = $('#openCartBtn');
+    const quickShopLink = $('#quickShopLink');
+
+    function formatPrice(n) { return n.toLocaleString('ru-RU') + ' ₽'; }
+    function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
+
+    function showToast(message, type = 'info') {
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', info: 'fa-fire' };
+      toast.innerHTML = `<i class="fas ${icons[type] || icons.info}"></i><span>${escapeHtml(message)}</span>`;
+      toastContainer.appendChild(toast);
+      setTimeout(() => { toast.classList.add('out'); setTimeout(() => toast.remove(), 300); }, 3500);
+    }
+
+    function canAccessShop() {
+      return currentUser && currentUser.nickname && currentUser.nickname.toLowerCase() === SHOP_OWNER;
+    }
+    function tryOpenShop() {
+      if (!canAccessShop()) { showToast('Магазин ещё в разработке', 'error'); return false; }
+      navigateTo('shop'); return true;
+    }
+    function isScreenshotUploader() {
+      return currentUser && currentUser.nickname && currentUser.nickname.toLowerCase() === SCREENSHOT_UPLOADER;
+    }
+
+    const PAGES = ['home', 'shop', 'info', 'screenshots'];
+    function navigateTo(pageId) {
+      if (!PAGES.includes(pageId)) pageId = 'home';
+      if (pageId === 'shop' && !canAccessShop()) { showToast('Магазин ещё в разработке', 'error'); pageId = 'home'; }
+      $$('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + pageId));
+      $$('.main-nav a').forEach(a => a.classList.toggle('active', a.dataset.nav === pageId));
+      $$('.side-menu-tab').forEach(t => t.classList.toggle('active', t.dataset.page === pageId));
+      $$('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + pageId));
+      const hash = pageId === 'home' ? '#/' : '#/' + pageId;
+      if (window.location.hash !== hash) history.pushState(null, '', hash);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (pageId === 'screenshots') renderScreenshots();
+    }
+
+    $$('[data-nav]').forEach(el => {
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        const pageId = el.dataset.nav;
+        if (pageId === 'shop') tryOpenShop();
+        else navigateTo(pageId);
+      });
+    });
+
+    function handleHash() {
+      const hash = window.location.hash.replace('#/', '').replace('#', '');
+      let pageId = PAGES.includes(hash) ? hash : 'home';
+      if (pageId === 'shop' && !canAccessShop()) { pageId = 'home'; showToast('Магазин ещё в разработке', 'error'); }
+      navigateTo(pageId);
+    }
+    window.addEventListener('popstate', handleHash);
+    window.addEventListener('hashchange', handleHash);
+
+    $('#copyIpBtn').addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(SERVER_IP);
+        const btn = $('#copyIpBtn');
+        btn.classList.add('copied');
+        $('#copyIpText').textContent = 'Скопировано!';
+        showToast('IP скопирован: ' + SERVER_IP, 'success');
+        setTimeout(() => { btn.classList.remove('copied'); $('#copyIpText').textContent = 'Копировать IP'; }, 2000);
+      } catch (e) {
+        const ta = document.createElement('textarea');
+        ta.value = SERVER_IP; document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); showToast('IP скопирован', 'success'); }
+        catch (err) { showToast('Не удалось скопировать. IP: ' + SERVER_IP, 'error'); }
+        document.body.removeChild(ta);
+      }
+    });
+
+    function getUsers() {
+      try { const raw = localStorage.getItem(STORAGE_USERS); return raw ? JSON.parse(raw) : {}; } catch (e) { return {}; }
+    }
+    function saveUsers(u) { try { localStorage.setItem(STORAGE_USERS, JSON.stringify(u)); } catch (e) {} }
+    function hashPassword(password) {
+      let hash = 0; const salt = 'playzone_shop_salt_2025'; const str = password + salt;
+      for (let i = 0; i < str.length; i++) { const c = str.charCodeAt(i); hash = ((hash << 5) - hash) + c; hash = hash & hash; }
+      return 'h_' + Math.abs(hash).toString(36);
+    }
+    function showRegError(msg) { regError.textContent = msg; regError.classList.add('show'); }
+    function showLoginError(msg) { loginError.textContent = msg; loginError.classList.add('show'); }
+
+    function getStoredScreenshots() {
+      try {
+        const raw = localStorage.getItem(STORAGE_SCREENSHOTS);
+        const p = raw ? JSON.parse(raw) : {};
+        return (p && typeof p === 'object' && !Array.isArray(p)) ? p : {};
+      } catch (e) { return {}; }
+    }
+    function saveStoredScreenshots(o) {
+      try { localStorage.setItem(STORAGE_SCREENSHOTS, JSON.stringify(o)); }
+      catch (e) { showToast('Хранилище переполнено', 'error'); }
+    }
+
+    function loadCurrentUser() {
+      const nick = localStorage.getItem(STORAGE_CURRENT);
+      if (!nick) { currentUser = null; updateUserUI(); renderScreenshots(); updateShopAccessUI(); return; }
+      const users = getUsers();
+      currentUser = users[nick] ? { nickname: nick, ...users[nick] } : null;
+      if (!currentUser) localStorage.removeItem(STORAGE_CURRENT);
+      updateUserUI(); renderScreenshots(); updateShopAccessUI();
+    }
+    function updateUserUI() {
+      if (currentUser) {
+        userBtnIcon.className = 'fas fa-user-circle';
+        userBtnText.textContent = currentUser.nickname;
+        userBtn.classList.add('logged-in');
+      } else {
+        userBtnIcon.className = 'fas fa-user';
+        userBtnText.textContent = 'Войти';
+        userBtn.classList.remove('logged-in');
+      }
+    }
+
+    document.getElementById('registerSubmitBtn').addEventListener('click', function () {
+      regError.classList.remove('show');
+      const nickname = document.getElementById('regNickname').value.trim();
+      const password = document.getElementById('regPassword').value;
+      const password2 = document.getElementById('regPassword2').value;
+      if (!nickname) { showRegError('Введите никнейм'); return; }
+      if (nickname.length < 3 || nickname.length > 20) { showRegError('Никнейм от 3 до 20 символов'); return; }
+      if (!/^[a-zA-Z0-9_]+$/.test(nickname)) { showRegError('Только буквы, цифры и _'); return; }
+      if (!password) { showRegError('Введите пароль'); return; }
+      if (password.length < 6) { showRegError('Пароль минимум 6 символов'); return; }
+      if (password !== password2) { showRegError('Пароли не совпадают'); return; }
+      const users = getUsers();
+      if (Object.keys(users).some(n => n.toLowerCase() === nickname.toLowerCase())) { showRegError('Никнейм уже занят'); return; }
+      users[nickname] = { passwordHash: hashPassword(password), registeredAt: new Date().toISOString(), ordersCount: 0 };
+      saveUsers(users);
+      localStorage.setItem(STORAGE_CURRENT, nickname);
+      loadCurrentUser();
+      if (authModal.classList.contains('active')) closeModal(authModal);
+      showToast(`Добро пожаловать, ${nickname}!`, 'success');
+      document.getElementById('regNickname').value = '';
+      document.getElementById('regPassword').value = '';
+      document.getElementById('regPassword2').value = '';
+      renderScreenshots();
+    });
+
+    document.getElementById('loginSubmitBtn').addEventListener('click', function () {
+      loginError.classList.remove('show');
+      const nickname = document.getElementById('loginNickname').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      if (!nickname) { showLoginError('Введите никнейм'); return; }
+      if (!password) { showLoginError('Введите пароль'); return; }
+      const users = getUsers();
+      const realNick = Object.keys(users).find(n => n.toLowerCase() === nickname.toLowerCase());
+      if (!realNick) { showLoginError('Пользователь не найден'); return; }
+      if (users[realNick].passwordHash !== hashPassword(password)) { showLoginError('Неверный пароль'); return; }
+      localStorage.setItem(STORAGE_CURRENT, realNick);
+      loadCurrentUser();
+      if (authModal.classList.contains('active')) closeModal(authModal);
+      showToast(`С возвращением, ${realNick}!`, 'success');
+      document.getElementById('loginNickname').value = '';
+      document.getElementById('loginPassword').value = '';
+      renderScreenshots();
+    });
+
+    function switchAuthTab(tab) {
+      if (tab === 'register') {
+        tabRegisterBtn.classList.add('active'); tabLoginBtn.classList.remove('active');
+        registerForm.style.display = 'flex'; loginForm.style.display = 'none';
+        authModalTitle.innerHTML = '<i class="fas fa-user-plus"></i> Регистрация';
+      } else {
+        tabLoginBtn.classList.add('active'); tabRegisterBtn.classList.remove('active');
+        registerForm.style.display = 'none'; loginForm.style.display = 'flex';
+        authModalTitle.innerHTML = '<i class="fas fa-sign-in-alt"></i> Вход';
+      }
+      regError.classList.remove('show'); loginError.classList.remove('show');
+    }
+    tabRegisterBtn.addEventListener('click', () => switchAuthTab('register'));
+    tabLoginBtn.addEventListener('click', () => switchAuthTab('login'));
+
+    userBtn.addEventListener('click', () => {
+      if (currentUser) {
+        profileNickname.textContent = currentUser.nickname;
+        const d = new Date(currentUser.registeredAt);
+        profileDate.textContent = d.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        profileOrders.textContent = currentUser.ordersCount || 0;
+        openModal(profileModal);
+      } else { switchAuthTab('register'); openModal(authModal); }
+    });
+    closeAuthBtn.addEventListener('click', () => closeModal(authModal));
+    authModal.addEventListener('click', (e) => { if (e.target === authModal) closeModal(authModal); });
+    closeProfileBtn.addEventListener('click', () => closeModal(profileModal));
+    profileModal.addEventListener('click', (e) => { if (e.target === profileModal) closeModal(profileModal); });
+
+    logoutBtn.addEventListener('click', () => {
+      localStorage.removeItem(STORAGE_CURRENT);
+      currentUser = null;
+      updateUserUI(); renderScreenshots(); updateShopAccessUI();
+      closeModal(profileModal);
+      showToast('Вы вышли из аккаунта', 'info');
+    });
+
+    function openMenu() {
+      sideMenu.classList.add('open');
+      overlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      renderScreenshots();
+    }
+    function closeMenu() {
+      sideMenu.classList.remove('open');
+      overlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+    menuToggle.addEventListener('click', openMenu);
+    sideMenuClose.addEventListener('click', closeMenu);
+    overlay.addEventListener('click', closeMenu);
+
+    $$('.side-menu-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const pageId = tab.dataset.page;
+        if (pageId === 'shop') tryOpenShop();
+        else navigateTo(pageId);
+        closeMenu();
+      });
+    });
+
+    function switchScreenshotCategory(catId) {
+      $$('.screenshot-cat-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === catId));
+      $$('.screenshot-cat-panel').forEach(p => p.classList.toggle('active', p.dataset.catPanel === catId));
+    }
+    $$('.screenshot-cat-btn').forEach(btn => {
+      btn.addEventListener('click', () => switchScreenshotCategory(btn.dataset.cat));
+    });
+
+    function updateScreenshotsTotalBadge() {
+      const stored = getStoredScreenshots();
+      let total = 0;
+      SCREENSHOT_CATEGORIES.forEach(c => { total += (stored[c.id] || []).length; });
+      if (total > 0) {
+        screenshotsTotalBadge.textContent = total;
+        screenshotsTotalBadge.style.display = 'inline-block';
+      } else screenshotsTotalBadge.style.display = 'none';
+    }
+
+    function renderScreenshots() {
+      userScreenshots = getStoredScreenshots();
+      const canUpload = isScreenshotUploader();
+
+      SCREENSHOT_CATEGORIES.forEach(cat => {
+        const capId = cat.id.charAt(0).toUpperCase() + cat.id.slice(1);
+        const grid = document.getElementById('grid' + capId);
+        const countEl = document.getElementById('count' + capId);
+        const uploadEl = document.getElementById('upload' + capId);
+        if (!grid) return;
+
+        const userShots = (userScreenshots[cat.id] || []).map(s => ({ ...s, isUserShot: true }));
+        const all = [...cat.base, ...userShots];
+        if (countEl) countEl.textContent = userShots.length;
+
+        if (uploadEl) {
+          if (canUpload) {
+            uploadEl.innerHTML = `
+              <div class="upload-zone" data-upload-cat="${cat.id}">
+                <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                <p>Перетащите изображение сюда или выберите файл</p>
+                <label class="upload-btn"><i class="fas fa-plus"></i> Выбрать файл
+                  <input type="file" accept="image/*" multiple data-cat="${cat.id}">
+                </label>
+                <div class="upload-hint">JPG, PNG, WEBP • макс. 2 МБ</div>
+              </div>`;
+            bindUploadZone(cat.id);
+          } else uploadEl.innerHTML = '';
+        }
+
+        if (all.length === 0) {
+          grid.innerHTML = `<div class="screenshot-empty"><i class="fas fa-image"></i>Пока нет скриншотов</div>`;
+          return;
+        }
+
+        grid.innerHTML = all.map(s => {
+          const removeBtn = (s.isUserShot && canUpload)
+            ? `<button class="screenshot-remove" data-remove-cat="${cat.id}" data-remove-id="${s.id}" title="Удалить">×</button>` : '';
+          return `
+            <div class="screenshot-item" data-cat="${cat.id}" data-id="${s.id}">
+              ${s.src ? `<img src="${s.src}" alt="${escapeHtml(s.title || 'Скриншот')}" loading="lazy">`
+                : `<div class="screenshot-placeholder"><i class="fas ${s.icon || 'fa-image'}"></i><span>${escapeHtml(s.title || 'Скриншот')}</span></div>`}
+              ${removeBtn}
+            </div>`;
+        }).join('');
+
+        grid.querySelectorAll('.screenshot-item').forEach(item => {
+          item.addEventListener('click', (e) => {
+            if (e.target.classList.contains('screenshot-remove')) return;
+            openLightbox(item.dataset.cat, item.dataset.id);
+          });
+        });
+        grid.querySelectorAll('.screenshot-remove').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            removeScreenshot(btn.dataset.removeCat, btn.dataset.removeId);
+          });
+        });
+      });
+      updateScreenshotsTotalBadge();
+    }
+
+    function bindUploadZone(catId) {
+      const zone = document.querySelector(`.upload-zone[data-upload-cat="${catId}"]`);
+      if (!zone) return;
+      const input = zone.querySelector('input[type="file"]');
+      input.addEventListener('change', (e) => { handleFiles(e.target.files, catId); input.value = ''; });
+      ['dragenter', 'dragover'].forEach(evt => zone.addEventListener(evt, (e) => {
+        e.preventDefault(); e.stopPropagation(); zone.classList.add('dragover');
+      }));
+      ['dragleave', 'drop'].forEach(evt => zone.addEventListener(evt, (e) => {
+        e.preventDefault(); e.stopPropagation(); zone.classList.remove('dragover');
+      }));
+      zone.addEventListener('drop', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        if (e.dataTransfer && e.dataTransfer.files) handleFiles(e.dataTransfer.files, catId);
+      });
+    }
+
+    function handleFiles(files, catId) {
+      if (!isScreenshotUploader()) { showToast('Только Art1k может добавлять скриншоты', 'error'); return; }
+      if (!files || files.length === 0) return;
+      const MAX_SIZE = 2 * 1024 * 1024;
+      let stored = getStoredScreenshots();
+      if (!stored[catId]) stored[catId] = [];
+      let added = 0, total = files.length;
+      Array.from(files).forEach(file => {
+        if (!file.type.startsWith('image/')) { showToast(`«${file.name}» не изображение`, 'error'); return; }
+        if (file.size > MAX_SIZE) { showToast(`«${file.name}» больше 2 МБ`, 'error'); return; }
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          stored[catId].push({
+            id: Date.now() + Math.floor(Math.random() * 10000),
+            src: ev.target.result,
+            title: file.name.replace(/\.[^.]+$/, ''),
+            author: currentUser.nickname,
+            addedAt: new Date().toISOString()
+          });
+          saveStoredScreenshots(stored);
+          userScreenshots = stored;
+          renderScreenshots();
+          added++;
+          if (added === total) showToast(`Добавлено: ${added}. Скриншоты видны всем игрокам`, 'success');
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function removeScreenshot(catId, id) {
+      if (!isScreenshotUploader()) { showToast('Нет прав на удаление', 'error'); return; }
+      if (!confirm('Удалить этот скриншот? Он исчезнет у всех игроков.')) return;
+      let stored = getStoredScreenshots();
+      if (!stored[catId]) return;
+      stored[catId] = stored[catId].filter(s => s.id !== id);
+      saveStoredScreenshots(stored);
+      userScreenshots = stored;
+      renderScreenshots();
+      showToast('Скриншот удалён у всех игроков', 'info');
+    }
+
+    function openLightbox(catId, id) {
+      const cat = SCREENSHOT_CATEGORIES.find(c => c.id === catId);
+      if (!cat) return;
+      const userShots = (getStoredScreenshots()[catId] || []);
+      const all = [...cat.base, ...userShots];
+      const s = all.find(x => x.id === id);
+      if (!s) return;
+      lightboxImage.innerHTML = s.src
+        ? `<img src="${s.src}" alt="${escapeHtml(s.title || 'Скриншот')}">`
+        : `<i class="fas ${s.icon || 'fa-image'}"></i><p style="font-size:1rem;color:var(--muted);">${escapeHtml(s.title || 'Скриншот')}</p>`;
+      lightboxCaption.textContent = s.title || 'Скриншот';
+      lightbox.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeLightbox() {
+      lightbox.classList.remove('active');
+      if (!sideMenu.classList.contains('open')) document.body.style.overflow = '';
+    }
+    lightboxClose.addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
+
+    function updateShopAccessUI() {
+      const allowed = canAccessShop();
+      if (navShop) navShop.classList.toggle('locked', !allowed);
+      if (openCartBtn) openCartBtn.classList.toggle('locked', !allowed);
+      if (quickShopLink) quickShopLink.classList.toggle('locked', !allowed);
+      if (!allowed && $('#page-shop').classList.contains('active')) navigateTo('home');
+      if (packagesGrid.children.length > 0) renderPackages();
+    }
+
+    function renderPackages() {
+      const allowed = canAccessShop();
+      packagesGrid.innerHTML = PACKAGES.map(pkg => `
+        <div class="package-card ${pkg.popular ? 'popular' : ''}">
+          ${pkg.popular ? '<div class="popular-badge"><i class="fas fa-fire"></i> Хит</div>' : ''}
+          <div class="package-icon"><i class="fas ${pkg.icon}"></i></div>
+          <div class="package-name">${escapeHtml(pkg.name)}</div>
+          <ul class="package-features">${pkg.features.map(f => `<li><i class="fas fa-fire"></i> ${escapeHtml(f)}</li>`).join('')}</ul>
+          <div class="package-price">
+            <span class="price-value">${formatPrice(pkg.price)}</span>
+            ${pkg.oldPrice ? `<span class="price-old">${formatPrice(pkg.oldPrice)}</span>` : ''}
+          </div>
+          <button class="buy-btn ${allowed ? '' : 'locked'}" data-id="${pkg.id}">
+            <i class="fas ${allowed ? 'fa-cart-plus' : 'fa-lock'}"></i> ${allowed ? 'Купить' : 'Недоступно'}
+          </button>
+        </div>
+      `).join('');
+      $$('.buy-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (!canAccessShop()) { showToast('Магазин ещё в разработке', 'error'); return; }
+          addToCart(parseInt(btn.dataset.id, 10));
+        });
+      });
+    }
+
+    function addToCart(packageId) {
+      if (!canAccessShop()) { showToast('Магазин ещё в разработке', 'error'); return; }
+      const pkg = PACKAGES.find(p => p.id === packageId);
+      if (!pkg) return;
+      const existing = cart.find(item => item.id === packageId);
+      if (existing) existing.quantity += 1;
+      else cart.push({ id: pkg.id, name: pkg.name, price: pkg.price, icon: pkg.icon, quantity: 1 });
+      updateCartUI();
+      showToast(`«${pkg.name}» добавлен в корзину`, 'success');
+      cartCount.style.transform = 'scale(1.5) rotate(10deg)';
+      setTimeout(() => { cartCount.style.transform = 'scale(1) rotate(0)'; }, 200);
+    }
+    function removeFromCart(i) {
+      if (i < 0 || i >= cart.length) return;
+      const n = cart[i].name; cart.splice(i, 1); updateCartUI();
+      showToast(`«${n}» удалён из корзины`, 'info');
+    }
+    function changeQuantity(i, d) {
+      if (i < 0 || i >= cart.length) return;
+      const q = cart[i].quantity + d;
+      if (q <= 0) { removeFromCart(i); return; }
+      cart[i].quantity = q; updateCartUI();
+    }
+    function getCartTotal() { return cart.reduce((s, i) => s + i.price * i.quantity, 0); }
+    function getCartCount() { return cart.reduce((s, i) => s + i.quantity, 0); }
+
+    function updateCartUI() {
+      cartCount.textContent = getCartCount();
+      cartTotal.textContent = formatPrice(getCartTotal());
+      checkoutBtn.disabled = cart.length === 0;
+      if (cart.length === 0) {
+        cartBody.innerHTML = `<div class="cart-empty"><i class="fas fa-fire"></i><p style="font-weight:700;color:var(--text);margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:1px;">Корзина пуста</p><p style="font-size:0.85rem;">Добавьте товары из каталога</p></div>`;
+        return;
+      }
+      cartBody.innerHTML = cart.map((item, i) => `
+        <div class="cart-item">
+          <div class="cart-item-icon"><i class="fas ${item.icon}"></i></div>
+          <div class="cart-item-info">
+            <div class="cart-item-name">${escapeHtml(item.name)}</div>
+            <div class="cart-item-price">${formatPrice(item.price * item.quantity)}</div>
+          </div>
+          <div class="cart-item-qty">
+            <button class="qty-btn" data-action="minus" data-index="${i}">−</button>
+            <span class="qty-value">${item.quantity}</span>
+            <button class="qty-btn" data-action="plus" data-index="${i}">+</button>
+          </div>
+          <button class="cart-item-remove" data-index="${i}"><i class="fas fa-trash-alt"></i></button>
+        </div>
+      `).join('');
+      $$('.qty-btn').forEach(btn => btn.addEventListener('click', () => changeQuantity(parseInt(btn.dataset.index, 10), btn.dataset.action === 'plus' ? 1 : -1)));
+      $$('.cart-item-remove').forEach(btn => btn.addEventListener('click', () => removeFromCart(parseInt(btn.dataset.index, 10))));
+    }
+
+    function openModal(m) { m.classList.add('active'); document.body.style.overflow = 'hidden'; }
+    function closeModal(m) { m.classList.remove('active'); document.body.style.overflow = ''; }
+
+    $('#openCartBtn').addEventListener('click', () => {
+      if (!canAccessShop()) { showToast('Магазин ещё в разработке', 'error'); return; }
+      openModal(cartModal);
+    });
+    $('#closeCartBtn').addEventListener('click', () => closeModal(cartModal));
+    cartModal.addEventListener('click', (e) => { if (e.target === cartModal) closeModal(cartModal); });
+
+    checkoutBtn.addEventListener('click', () => {
+      if (!canAccessShop()) { showToast('Магазин ещё в разработке', 'error'); return; }
+      if (cart.length === 0) return;
+      closeModal(cartModal);
+      checkoutTotal.textContent = formatPrice(getCartTotal());
+      if (currentUser) $('#nickname').value = currentUser.nickname;
+      openModal(checkoutModal);
+    });
+    $('#closeCheckoutBtn').addEventListener('click', () => closeModal(checkoutModal));
+    checkoutModal.addEventListener('click', (e) => { if (e.target === checkoutModal) closeModal(checkoutModal); });
+
+    function closeSuccessModal() { closeModal(successModal); }
+    window.closeSuccessModal = closeSuccessModal;
+    successModal.addEventListener('click', (e) => { if (e.target === successModal) closeModal(successModal); });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (cartModal.classList.contains('active')) closeModal(cartModal);
+        if (checkoutModal.classList.contains('active')) closeModal(checkoutModal);
+        if (successModal.classList.contains('active')) closeModal(successModal);
+        if (authModal.classList.contains('active')) closeModal(authModal);
+        if (profileModal.classList.contains('active')) closeModal(profileModal);
+        if (lightbox.classList.contains('active')) closeLightbox();
+        if (sideMenu.classList.contains('open')) closeMenu();
+      }
+    });
+
+    $$('.payment-method').forEach(m => {
+      m.addEventListener('click', () => {
+        $$('.payment-method').forEach(x => x.classList.remove('selected'));
+        m.classList.add('selected'); selectedPayment = m.dataset.method;
+      });
+    });
+
+    $('#payBtn').addEventListener('click', () => {
+      if (!canAccessShop()) { showToast('Магазин ещё в разработке', 'error'); return; }
+      const nickname = $('#nickname').value.trim();
+      const email = $('#email').value.trim();
+      if (!nickname) { showToast('Введите игровой никнейм', 'error'); $('#nickname').focus(); return; }
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('Введите корректный email', 'error'); $('#email').focus(); return; }
+      const payBtn = $('#payBtn');
+      payBtn.disabled = true;
+      payBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Обработка...';
+      setTimeout(() => {
+        const total = getCartTotal(), itemsCount = getCartCount();
+        if (currentUser) {
+          const users = getUsers();
+          if (users[currentUser.nickname]) {
+            users[currentUser.nickname].ordersCount = (users[currentUser.nickname].ordersCount || 0) + 1;
+            saveUsers(users);
+            currentUser.ordersCount = users[currentUser.nickname].ordersCount;
+          }
+        }
+        closeModal(checkoutModal);
+        cart = []; updateCartUI();
+        $('#successText').textContent = `Заказ на ${formatPrice(total)} (${itemsCount} шт.) оплачен. Донат будет выдан игроку «${nickname}» в течение 1–2 минут. Чек отправлен на ${email}.`;
+        openModal(successModal);
+        $('#checkoutForm').reset();
+        payBtn.disabled = false;
+        payBtn.innerHTML = '<i class="fas fa-lock"></i> Оплатить';
+        showToast('Оплата прошла успешно!', 'success');
+      }, 1800);
+    });
+
+    $$('.faq-question').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = btn.parentElement;
+        const isOpen = item.classList.contains('open');
+        $$('.faq-item').forEach(i => i.classList.remove('open'));
+        if (!isOpen) item.classList.add('open');
+      });
+    });
+
+    function init() {
+      loadCurrentUser();
+      renderPackages();
+      renderScreenshots();
+      updateCartUI();
+      updateShopAccessUI();
+      const firstFaq = document.querySelector('.faq-item');
+      if (firstFaq) firstFaq.classList.add('open');
+      handleHash();
+    }
+    init();
+  </script>
+</body>
+</html>
